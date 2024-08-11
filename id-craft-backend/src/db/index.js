@@ -15,13 +15,22 @@ const userdbClient = new Pool({
   database: process.env.DB_NAME
 });
 
-const result = await userdbClient.query('SELECT * FROM users');
-console.log(result.rows);
-console.log(result.rowCount);
-console.log(result.rows[1]);
-console.log(result.rows[0].email);
+const connectToDatabase = async () => {
+  try {
+    await userdbClient.connect();
+    console.log('Connected to the database');
+  } catch (error) {
+    console.log('Error connecting to the database', error);
+  }
+};
 
-export default userdbClient;
+// const result = await userdbClient.query('SELECT * FROM users');
+// console.log(result.rows);
+// console.log(result.rowCount);
+// console.log(result.rows[1]);
+// console.log(result.rows[0].email);
+
+// export default userdbClient;
 
 
 
