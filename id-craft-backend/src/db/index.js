@@ -7,7 +7,7 @@ const { Pool } = pg; // Pool is a class in the pg module
 
 // setting up db credentials and connection using the Pool class
 // credentials are stored in the .env file
-const userdbClient = new Pool({
+const userdbPool = new Pool({
   host: process.env.DB_HOST,
   user: process.env.DB_USER,
   port: process.env.DB_PORT,
@@ -17,13 +17,17 @@ const userdbClient = new Pool({
 
 const connectToDatabase = async () => {
   try {
-    await userdbClient.connect();
+    await userdbPool.connect();
     console.log('Connected to the database');
   } catch (error) {
     console.log('Error connecting to the database', error);
   }
 };
 
+export { connectToDatabase, userdbPool };
+
+
+//testing the connection
 // const result = await userdbClient.query('SELECT * FROM users');
 // console.log(result.rows);
 // console.log(result.rowCount);

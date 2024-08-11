@@ -3,6 +3,7 @@ import cors from 'cors';
 import helmet from 'helmet';
 import { config } from 'dotenv';
 import router from './routes/index.js';
+import { connectToDatabase } from './db/index.js';
 
 config();
 const port = process.env.PORT || 3000;
@@ -15,6 +16,9 @@ app.use(express.json());
 
 app.use('/', router);
 
-app.listen(port, () => {
-  console.log(`Server is running on port ${port}`);
+connectToDatabase()
+.then(() => {
+  app.listen(port, () => {
+    console.log(`Server is running on port ${port}`);
+  });
 });
