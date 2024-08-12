@@ -2,9 +2,9 @@ import { userdbPool } from "./index.js";
 
 
 const find = async (email) => {
-  query = {
-    test: 'SELECT * FROM users WHERE email = $1',
-    valles: [email]
+  const query = {
+    text: 'SELECT * FROM users WHERE email = $1',
+    values: [email]
   };
   try {
     const result = await userdbPool.query(query);
@@ -18,7 +18,7 @@ const find = async (email) => {
 
 
 const create = async (email, password) => {
-   query = {
+   const query = {
     text: 'INSERT INTO users(email, password) VALUES($1, $2) RETURNING *',
     values: [email, password]
   };

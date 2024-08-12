@@ -1,13 +1,13 @@
 import express from 'express';
-import UsersController from '../controllers/UsersControllers.js';
+import { findUser, createUser } from '../controllers/UsersControllers.js';
 
 
 const router = express.Router();
 
-router.get('/test', (req, res) => {
-  return res.json({ message: 'Hello IDCraft users. router working' });
-});
-router.post('/users', UsersController.postNew);
+router.get('/users/:email', findUser); // get a user by email endpoint (not sure i will use this)
+// router.post('/users', UsersController.postNew);
+
+router.post('/users', createUser); // create a new user endpoint
 
 
 
