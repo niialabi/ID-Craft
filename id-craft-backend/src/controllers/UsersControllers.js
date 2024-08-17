@@ -1,5 +1,6 @@
 import validator from "validator";
 import { find, create } from "../db/queries.js";
+import bcrypt from "bcrypt";
 
 
 
@@ -34,7 +35,8 @@ export const createUser = async (req, res) => {
     if (existingUser) {
       return res.status(400).json({ message: 'User already exists' });
     }
-    const newUser = await create(email, password);
+    const hashedPassword = await bcrypt.hash(password, 10);
+    const newUser = await create(email, hashedPassword);
     return res.status(201).json(newUser);
   } catch (error) {
     console.log('Error creating user', error);
