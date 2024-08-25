@@ -1,13 +1,11 @@
 import express from 'express';
-import { findUser, createUser } from '../controllers/UsersControllers.js';
-
+import AuthController from '../controllers/AuthControllers.js';
 
 const router = express.Router();
 
-router.get('/users/:email', findUser); // get a user by email endpoint (not sure i will use this)
-// router.post('/users', UsersController.postNew);
 
-router.post('/users', createUser); // create a new user endpoint
+router.post('/api/auth/signup', AuthController.signup); // create a new user endpoint
+// router.post('/api/auth/login', AuthController.login); // login user endpoint
 
 
 

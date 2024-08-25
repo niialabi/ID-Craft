@@ -3,26 +3,23 @@ import cors from 'cors';
 import helmet from 'helmet';
 import { config } from 'dotenv';
 import router from './routes/index.js';
-import { connectToDatabase } from './db/index.js';
-import { findUser } from './controllers/UsersControllers.js';
+import initDb from './db/initDb.js';
 
-config();
-const port = process.env.PORT || 3000;
-const app = express();
+config(); // load environment variables from a .env file
+const port = process.env.PORT || 3000; // set the port for the server
+const app = express(); // create an express app
 
-app.use(express.json());
-app.use(cors());
-app.use(helmet());
+app.use(express.json()); // enable parsing of JSON data
+app.use(cors()); // enable CORS to allow requests from the frontend
+app.use(helmet()); // adds security headers to the response
 
+app.use('/', router); // use the router middleware. redirects to the routes/index.js file
 
-app.use('/', router);
-
-connectToDatabase()
-.then(() => {
+// initialize the database and start the server
+initDb().then(() => {
   app.listen(port, () => {
     console.log(`Server is running on port ${port}`);
   });
+}).catch((error) => {
+  console.log('Error initializing database', error);
 });
-
-
-
