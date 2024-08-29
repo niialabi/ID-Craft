@@ -13,7 +13,9 @@ app.use(express.json()); // enable parsing of JSON data
 app.use(cors()); // enable CORS to allow requests from the frontend
 app.use(helmet()); // adds security headers to the response
 
-app.use('/', router); // use the router middleware. redirects to the routes/index.js file
+app.use('/api/auth', router); // use the router middleware. redirects to the routes/index.js file
+// app.use('/api/events', require('./routes/events'));
+// app.use('/api/id-cards', require('./routes/idCards'));
 
 // initialize the database and start the server
 initDb().then(() => {
