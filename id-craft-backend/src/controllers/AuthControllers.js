@@ -1,3 +1,5 @@
+import passport from "passport";
+import { Strategy as JwtStrategy, ExtractJwt } from "passport-jwt";
 import validator from "validator";
 import { find, create } from "../db/queries.js";
 import bcrypt from "bcrypt";
@@ -6,6 +8,25 @@ import { config } from "dotenv";
 
 config();
 
+
+const jwtOptions = {
+  jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
+  secretOrKey: process.env.JWT_SECRET,
+};
+
+passport.use(new JwtStrategy(jwtOptions, async (payload, done) => {
+  try {
+    // console.log('payload', payload);
+    const user = await find(payload.email);
+    if (user) {
+      return done(null, user);
+    } else {
+      return done(null, false);
+    }
+  } catch (error) {
+    return done(error, false);
+  }
+}));
 
 const AuthController = {
   signup: async (req, res) => {
@@ -28,9 +49,10 @@ const AuthController = {
       // JWT token
       const token = jwt.sign({ userId: newUser.id }, process.env.JWT_SECRET, {expiresIn: '1h'});
 
-      return res.status(201).json({ user: newUser, token });
+      res.cookie('token', token, { httpOnly: true, secure: process.env.NODE_ENV === 'production' });
+      return res.status(201).json({ user: { id: newUser.id, email: newUser.email }, message: 'Signup successful' });
     } catch (error) {
-      console.log('Error creating user', error);
+      console.error('Error creating user', error);
       return res.status(500).json({ message: 'Internal server error' });
     }
   },
@@ -54,33 +76,20 @@ const AuthController = {
       }
 
       // JWT token
-      const token = jwt.sign({ userId: user.id }, process.env.JWT_SECRET, {expiresIn: '1h'});
+      const token = jwt.sign({ id: user.id, email: user.email }, process.env.JWT_SECRET, {expiresIn: '1h'});
 
-      return res.status(200).json({ message: 'Login successful', token });
+      res.cookie('token', token, { httpOnly: true, secure: process.env.NODE_ENV === 'production' });
+      return res.status(200).json( {user: {id: user.id, email: user.email }, message: 'Login successful', tokenTest: token });
     } catch (error) {
       console.log('Error logging in user', error);
       return res.status(500).json({ message: 'Internal server error' });
     }
   },
 
-  verifyToken: (req, res, next) => {
-    const token = req.header('Authorization')?.replace('Bearer ', '');
-    if (!token) {
-      return res.status(401).json({ message: 'Unauthorized' });
-    };
-    try {
-      const decoded = jwt.verify(token, process.env.JWT_SECRET);
-      req.userId = decoded.userId;
-      next();
-    } catch (error) {
-      console.log('Error verifying token', error);
-      return res.status(401).json({ message: 'Unauthorized' });
-    }
-  },
+  verifyToken: passport.authenticate('jwt', { session: false }),
 
   logout: (req, res) => {
-    // localStorage.removeItem('token'); client side
-    // sessionStorage.removeItem('token'); client side
+    res.clearCookie('token');
     return res.status(200).json({ message: 'Logout successful' });
   }
 
